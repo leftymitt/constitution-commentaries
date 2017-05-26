@@ -1,0 +1,17 @@
+# proprietary formats are not appreciated.
+*.xlsx
+*.xlsx#
+
+# backup files from editors
+*~
+*.swp
+
+# ignore raw data or archive directory
+raw_data/
+archive/
+
+# ignore plots
+plots/
+
+# don't track ipython checkpoints
+.ipynb_checkpoints/

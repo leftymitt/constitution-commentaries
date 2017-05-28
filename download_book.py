@@ -53,6 +53,26 @@ def parse_toc(soup):
     return book
 
 
+def download_book(prefix, book):
+    http = urllib3.PoolManager()
+    for idx in range(0, len(book["url"])):
+        if book["book"] != 0:
+            outdir = "original/vol" + \
+                str(book["volume"][idx]) + "/book" + \
+                str(book["book"][idx]) + "/"
+        else:
+            outdir = "original/vol" + str(book["volume"][idx]) + "/"
+        if not os.path.exists(outdir):
+            os.makedirs(outdir, exist_ok=True)
+        response = http.request('GET', prefix + book["url"][idx])
+        soup = bs(response.data, "lxml")
+        outfile = str(book["chapter"][idx]) + " " + \
+            book["chaptertitle"][idx] + ".html"
+        with open(outdir + outfile, "wb") as f:
+            f.write(response.data)
+        response.release_conn()
+
+
 def generate_toc(book):
     html       = '<div class="uk-panel uk-panel-box">\n'
     html      += '  <h3 class="uk-panel-title">Table of Contents</h3>\n'

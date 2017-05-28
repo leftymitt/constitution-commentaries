@@ -15,3 +15,7 @@ plots/
 
 # don't track ipython checkpoints
 .ipynb_checkpoints/
+
+
+# repo-specific
+original/

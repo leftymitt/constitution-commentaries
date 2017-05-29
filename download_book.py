@@ -176,10 +176,8 @@ def parse_chapter(soup):
                 footer = bs(re.sub("(<p>\n|</p>\n)", "",
                                    temp[1]), "lxml").find("ul").text
                 # get the number of references in the main body
-                #  bodycount = len(re.findall("(\.|,|\?|\"|;)\d(\)| |\n)", body))
                 bodycount = len(re.findall("[\.,\?\";]\d[\) |\n]", body))
                 # get the number of items enumerated in the footer
-                #  listcount = len(re.findall("\n *\d .*\n", footer))
                 listcount = len(re.findall(
                     '_-_ *\d ', re.sub('\n', ' ', re.sub('(\n\n|\n +\n)', '_-_', footer))))
                 # the the number of items (total) in the footer
@@ -250,9 +248,8 @@ def parse_chapter(soup):
                 #  text += html2text(body) # strips anchor tags...
                 text += body
             else:
-                print(str(sectionidx) + ": no footnotes")
-                #  body = html2text(body) # strips anchor tags...
-                text += body
+                print(str(sectionidx) + ": no footnotes?")
+                print(temp)
     return text, footnotes
 
 
@@ -300,6 +297,12 @@ book = parse_toc(soup)
 generate_toc(book)
 
 for idx in range(0, len(book["url"])):
+    print("downloading chapter " +
+          str(book["chapter"]) + ": " + book["chaptertitle"].strip().lower())
     soup = download_page(book["url"][idx])
-    [ text, footnotes ] = parse_chapter(soup)
+    [text, footnotes] = parse_chapter(soup)
+    print("parsing chapter...")
     generate_chapter(text, footnotes, book, idx)
+    print("generating chapter...")
+
+print("done.")

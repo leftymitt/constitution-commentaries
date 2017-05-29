@@ -149,6 +149,8 @@ def parse_chapter(soup):
         [text, footnotes, etc] = content.prettify().split("<hr/>")
         text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)
         footnotes = re.sub("<font>|</font>|  +|<div .*>|</div>", "", footnotes)
+        footnotes = [re.sub('\n+', ' ', item.text.strip().rstrip())
+                     for item in bs(footnotes, 'lxml').findAll('p')]
     else:
         sections = content.prettify().split("</center>")
         del sections[0]

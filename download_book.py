@@ -157,6 +157,9 @@ def parse_chapter(soup):
         footnotes = re.sub("<font>|</font>|  +|<div .*>|</div>", "", footnotes)
         footnotes = [re.sub('\n+', ' ', item.text.strip().rstrip())
                      for item in bs(footnotes, 'lxml').findAll('p')]
+        for idx in range(0, len(footnotes)):
+            footnotenum = "{0:0>3}".format(int(re.findall(r'^ *\d+', footnotes[idx])[0].strip()))
+            footnotes[idx] = re.sub('^\d+ *\. ', '<a id="%s"></a>' % footnotenum, footnotes[idx])
     else:
         sections = content.prettify().split("</center>")
         del sections[0]
@@ -241,7 +244,7 @@ def parse_chapter(soup):
                     body = re.sub(r'([\.,\?\";])%d([\) |\n])' % footrefnum,
                                   r'\1<sup><a href="#%d">%d</a></sup>\2' % (footnotecount, footnotecount), body)
                     newfootnote = re.sub(
-                        r'^%d ' % footrefnum, r'<a id="%d"></a>%d ' % (footnotecount, footnotecount), newfootnote)
+                        r'^\D*%d ' % footrefnum, r'<a id="%d"></a> ' % footnotecount, newfootnote)
                     footnotecount += 1
                     footnotes.append(newfootnote)
                 #  text += html2text(body) # strips anchor tags...
@@ -279,10 +282,7 @@ def generate_chapter(text, footnotes, book, idx):
     html += '<div class="uk-article-meta">\n'
     html += '<ol>\n'
     for footnote in footnotes:
-        footnotenum = "{0:0>3}".format(int(re.findall(r'^\d+', footnote)[0]))
-        html += '<li>' + re.sub('^\d+ *\. ', '<a id="%s"></a>' %
-                                footnotenum, footnote) + '</li>\n'
-
+        html += '<li>' + footnote + '</li>\n'
     html += '</ol>\n'
     html += '</div>\n'
     html += '</html>'

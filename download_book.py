@@ -56,7 +56,7 @@ def parse_toc(soup):
 def download_book(prefix, book):
     http = urllib3.PoolManager()
     for idx in range(0, len(book["url"])):
-        if book["book"] != 0:
+        if book["book"][idx] != 0:
             outdir = "original/vol" + \
                 str(book["volume"][idx]) + "/book" + \
                 str(book["book"][idx]) + "/"

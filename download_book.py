@@ -75,34 +75,36 @@ def download_book(prefix, book):
 
 def generate_toc(book):
     html       = '<div class="uk-panel uk-panel-box">\n'
-    html      += '  <h3 class="uk-panel-title">Table of Contents</h3>\n'
+    html      += '  <h3 class="uk-panel-title">table of contents</h3>\n'
     vol1html   = '  <ul class="uk-nav-side uk-nav" data-uk-nav>\n'
-    vol1html  += '    <li class="uk-nav-header">Volume 1</li>\n'
+    vol1html  += '    <li class="uk-nav-header">volume 1</li>\n'
     book1html  = '    <li class="uk-parent">\n'
     book1html += '      <ul class="uk-nav-sub">\n'
-    book1html += '        <li class="uk-nav-header">Book 1: ' + str(book["booktitle"][0]) + '</li>\n'
+    book1html += '        <li class="uk-nav-header">book 1: ' + str(book["booktitle"][0]).strip().lower() + '</li>\n'
     book2html  = '    <li class="uk-parent">\n'
     book2html += '      <ul class="uk-nav-sub">\n'
-    book2html += '        <li class="uk-nav-header">Book 2: ' + str(book["booktitle"][1]) + '</li>\n'
+    book2html += '        <li class="uk-nav-header">book 2: ' + str(book["booktitle"][1]).strip().lower() + '</li>\n'
     book3html  = '    <li class="uk-parent">\n'
     book3html += '      <ul class="uk-nav-sub">\n'
-    book3html += '        <li class="uk-nav-header">Book 3: ' + str(book["booktitle"][2]) + '</li>\n'
+    book3html += '        <li class="uk-nav-header">book 3: ' + str(book["booktitle"][2]).strip().lower() + '</li>\n'
     vol2html   = '  <ul class="uk-nav-sub">\n'
-    vol2html  += '    <li class="uk-nav-header">Volume 3</li>\n'
+    vol2html  += '    <li class="uk-nav-header">volume 3</li>\n'
     vol3html   = '  <ul class="uk-nav-sub">\n'
-    vol3html  += '    <li class="uk-nav-header">Volume 3</li>\n'
+    vol3html  += '    <li class="uk-nav-header">volume 3</li>\n'
     for idx in range(0, len(book["volume"])):
+        chaptertitle = str(book["chaptertitle"][idx]).strip().lower()
+        chapterurl = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub('[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
         if book["volume"][idx] == 1:
             if book["book"][idx] == 1:
-                book1html += '        <li><a href="#">Ch. ' + str(book["chapter"][idx]) + ': ' + str(book["chaptertitle"][idx]) + '</a></li>\n'
+                book1html += '        <li><a href="vol1/book1/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
             elif book["book"][idx] == 2:
-                book2html += '        <li><a href="#">Ch. ' + str(book["chapter"][idx]) + ': ' + str(book["chaptertitle"][idx]) + '</a></li>\n'
+                book2html += '        <li><a href="vol1/book2/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
             elif book["book"][idx] == 3:
-                book3html += '        <li><a href="#">Ch. ' + str(book["chapter"][idx]) + ': ' + str(book["chaptertitle"][idx]) + '</a></li>\n'
+                book3html += '        <li><a href="vol1/book3/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
         elif book["volume"][idx] == 2:
-            vol2html  += '    <li><a href="#">Ch. ' + str(book["chapter"][idx]) + ': ' + str(book["chaptertitle"][idx]) + '</a></li>\n'
+            vol2html  += '    <li><a href="vol2/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
         elif book["volume"][idx] == 3:
-            vol3html  += '    <li><a href="#">Ch. ' + str(book["chapter"][idx]) + ': ' + str(book["chaptertitle"][idx]) + '</a></li>\n'
+            vol3html  += '    <li><a href="vol3/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
     book1html += '      </ul>\n'
     book1html += '    </li>\n'
     book2html += '      </ul>\n'
@@ -114,7 +116,10 @@ def generate_toc(book):
     vol3html  += '  </ul>\n'
     html += vol1html + vol2html + vol3html
     html += '</div>\n'
-    f = open('toc.html', 'w')
+    outdir = "revised/"
+    if not os.path.exists(outdir):
+        os.makedirs(outdir, exist_ok=True)
+    f = open(outdir + 'toc.html', 'w')
     f.write(html)
     f.close()
 

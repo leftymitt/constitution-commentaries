@@ -16,6 +16,9 @@ plots/
 # don't track ipython checkpoints
 .ipynb_checkpoints/
 
+# python cache
+__pycache__/
+
 
 # repo-specific
 original/

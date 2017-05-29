@@ -248,6 +248,45 @@ def parse_chapter(soup):
     return text, footnotes
 
 
+def generate_chapter(text, footnotes, book, idx):
+    outdir = "revised/"
+    if book["book"][idx] != 0:
+        outdir += "vol" + \
+            str(book["volume"][idx]) + "/book" + \
+            str(book["book"][idx]) + "/"
+    else:
+        outdir += "vol" + str(book["volume"][idx]) + "/"
+
+    if not os.path.exists(outdir):
+        os.makedirs(outdir, exist_ok=True)
+
+    outfile = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub(
+        '[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
+
+    html = ''
+    html += '<html>'
+    html += '<head><meta charset="utf-8"></head>'
+    html += '<h1 class="uk-h2">Chapter ' + \
+        str(book["chapter"][idx]) + '</h1>\n'
+    html += '<h2 class="uk-h4">' + book["chaptertitle"][idx] + '</h2>\n'
+    html += '<div class="uk-article">\n' + text + '</div>\n'
+    html += '<hr>\n'
+    html += '<div class="uk-article-meta">\n'
+    html += '<ol>\n'
+    for footnote in footnotes:
+        footnotenum = "{0:0>3}".format(int(re.findall(r'^\d+', footnote)[0]))
+        html += '<li>' + re.sub('^\d+ *\. ', '<a id="%s"></a>' %
+                                footnotenum, footnote) + '</li>\n'
+
+    html += '</ol>\n'
+    html += '</div>\n'
+    html += '</html>'
+
+    f = open(outdir + outfile, "w")
+    f.write(html)
+    f.close()
+
+
 #
 # Parse table of contents
 #
@@ -261,7 +300,7 @@ generate_toc(book)
 soup = download_page(prefix + "js_336.htm")
 [ text, footnotes ] = parse_chapter(soup)
 
-#  for idx in range(0, len(book["url"])):
-#      soup = download_page(book["url"][idx])
-#      [ text, footnotes ] = parse_chapter(soup)
-#      generate_chapter(text, footnotes, book)
+for idx in range(0, len(book["url"])):
+    soup = download_page(book["url"][idx])
+    [ text, footnotes ] = parse_chapter(soup)
+    generate_chapter(text, footnotes, book, idx)

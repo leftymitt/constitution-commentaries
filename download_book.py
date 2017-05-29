@@ -120,7 +120,7 @@ def generate_toc(book):
 
 
 def parse_chapter(soup):
-    content = soup.find("div", {"id":"stylesheet_body"})
+    content = soup.find("div", {"id": "stylesheet_body"})
 
     # strip out <script>, <style>, and other tags from the html
     for tag in content.findAll(True):
@@ -138,21 +138,21 @@ def parse_chapter(soup):
             tag['id'] = name
             name = None
 
-    [ tag.decompose() for tag in content("script") ]
-    [ tag.decompose() for tag in content("noscript") ]
-    [ tag.decompose() for tag in content("style") ]
-    [ tag.decompose() for tag in content("span") ]
-    for comment in content.findAll(text=lambda text:isinstance(text, Comment)):
+    [tag.decompose() for tag in content("script")]
+    [tag.decompose() for tag in content("noscript")]
+    [tag.decompose() for tag in content("style")]
+    [tag.decompose() for tag in content("span")]
+    for comment in content.findAll(text=lambda text: isinstance(text, Comment)):
         comment.extract()
 
     if len(content.prettify().split("<hr/>")) == 3:
-        [ text, footnotes, etc ] = content.prettify().split("<hr/>")
+        [text, footnotes, etc] = content.prettify().split("<hr/>")
         text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)
         footnotes = re.sub("<font>|</font>|  +|<div .*>|</div>", "", footnotes)
     else:
         sections = content.prettify().split("</center>")
         del sections[0]
-        sections = [ item.split("<center>")[0] for item in sections ]
+        sections = [item.split("<center>")[0] for item in sections]
 
         text = ""
         footnotes = []
@@ -169,7 +169,8 @@ def parse_chapter(soup):
                 bodycount = len(re.findall("[\.,\?\";]\d[\) |\n]", body))
                 # get the number of items enumerated in the footer
                 #  listcount = len(re.findall("\n *\d .*\n", footer))
-                listcount = len(re.findall('_-_ *\d ', re.sub('\n', ' ', re.sub('(\n\n|\n +\n)', '_-_', footer))))
+                listcount = len(re.findall(
+                    '_-_ *\d ', re.sub('\n', ' ', re.sub('(\n\n|\n +\n)', '_-_', footer))))
                 # the the number of items (total) in the footer
                 newfootnotes = [""]
                 temp = list(filter(None, [item.strip()
@@ -183,7 +184,7 @@ def parse_chapter(soup):
                     else:
                         newfootnotes[-1] += " " + item
                 footercount = len(newfootnotes)
-                iscarryover=False
+                iscarryover = False
                 # print any mismatch
                 if listcount != footercount or footercount != bodycount or bodycount != listcount:
                     print(str(sectionidx) + ": mismatch\tbody=" + str(bodycount) +
@@ -192,7 +193,8 @@ def parse_chapter(soup):
                 if listcount == footercount and footercount == bodycount and bodycount == listcount:
                     print(str(sectionidx) + ":\t\tbody=" + str(bodycount) +
                           "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
-                # when an enumerated item gets appended to preceding carryover text
+                # when an enumerated item gets appended to preceding carryover
+                # text
                 elif bodycount == footercount and footercount == listcount + 1:
                     iscarryover = True
                     newfootnotes[0:1] = re.split("\n\t", newfootnotes[0])
@@ -211,7 +213,8 @@ def parse_chapter(soup):
                     for bodyref in bodyrefs:
                         bodyrefnum = int(re.findall('\d', bodyref)[0])
                         for newfootnote in newfootnotes:
-                            footrefnum = int(re.findall(r'^\D*(\d+)', newfootnote)[0])
+                            footrefnum = int(re.findall(
+                                r'^\D*(\d+)', newfootnote)[0])
                             if footrefnum == bodyrefnum:
                                 temp.append(newfootnote)
                             else:
@@ -227,8 +230,10 @@ def parse_chapter(soup):
                     iscarryover = False
                 for newfootnote in newfootnotes:
                     footrefnum = int(re.findall(r'^\D*(\d+)', newfootnote)[0])
-                    body = re.sub(r'([\.,\?\";])%d([\) |\n])'%footrefnum, r'\1<a href="#%d">%d</a>\2'%(footnotecount,footnotecount), body)
-                    newfootnote = re.sub(r'^%d '%footrefnum, r'%d '%footnotecount, newfootnote)
+                    body = re.sub(r'([\.,\?\";])%d([\) |\n])' % footrefnum,
+                                  r'\1<a href="#%d">%d</a>\2' % (footnotecount, footnotecount), body)
+                    newfootnote = re.sub(
+                        r'^%d ' % footrefnum, r'%d ' % footnotecount, newfootnote)
                     footnotecount += 1
                     footnotes.append(newfootnote)
                 #  text += html2text(body) # strips anchor tags...

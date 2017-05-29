@@ -119,6 +119,127 @@ def generate_toc(book):
     f.close()
 
 
+def parse_chapter(soup):
+    content = soup.find("div", {"id":"stylesheet_body"})
+
+    # strip out <script>, <style>, and other tags from the html
+    for tag in content.findAll(True):
+        href = None
+        name = None
+        if 'href' in tag.attrs:
+            href = tag['href']
+        if 'name' in tag.attrs:
+            name = tag['name']
+        tag.attrs.clear()
+        if href:
+            tag['href'] = href
+            href = None
+        if name:
+            tag['id'] = name
+            name = None
+
+    [ tag.decompose() for tag in content("script") ]
+    [ tag.decompose() for tag in content("noscript") ]
+    [ tag.decompose() for tag in content("style") ]
+    [ tag.decompose() for tag in content("span") ]
+    for comment in content.findAll(text=lambda text:isinstance(text, Comment)):
+        comment.extract()
+
+    if len(content.prettify().split("<hr/>")) == 3:
+        [ text, footnotes, etc ] = content.prettify().split("<hr/>")
+        text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)
+        footnotes = re.sub("<font>|</font>|  +|<div .*>|</div>", "", footnotes)
+    else:
+        sections = content.prettify().split("</center>")
+        del sections[0]
+        sections = [ item.split("<center>")[0] for item in sections ]
+
+        text = ""
+        footnotes = []
+        footnotecount = 1
+        for sectionidx in range(0, len(sections)):
+            temp = re.split('\n *<b>\n *__+\n *</b>\n *', sections[sectionidx])
+            if len(temp) == 2:
+                # extract text (above the ___) and footer (below the ___)
+                body = temp[0]
+                footer = bs(re.sub("(<p>\n|</p>\n)", "",
+                                   temp[1]), "lxml").find("ul").text
+                # get the number of references in the main body
+                #  bodycount = len(re.findall("(\.|,|\?|\"|;)\d(\)| |\n)", body))
+                bodycount = len(re.findall("[\.,\?\";]\d[\) |\n]", body))
+                # get the number of items enumerated in the footer
+                #  listcount = len(re.findall("\n *\d .*\n", footer))
+                listcount = len(re.findall('_-_ *\d ', re.sub('\n', ' ', re.sub('(\n\n|\n +\n)', '_-_', footer))))
+                # the the number of items (total) in the footer
+                newfootnotes = [""]
+                temp = list(filter(None, [item.strip()
+                                          for item in re.split("\n +\n", footer)]))
+                for item in temp:
+                    if re.match("^\d ", item):
+                        if newfootnotes[-1]:
+                            newfootnotes.append(item)
+                        else:
+                            newfootnotes[-1] += " " + item
+                    else:
+                        newfootnotes[-1] += " " + item
+                footercount = len(newfootnotes)
+                iscarryover=False
+                # print any mismatch
+                if listcount != footercount or footercount != bodycount or bodycount != listcount:
+                    print(str(sectionidx) + ": mismatch\tbody=" + str(bodycount) +
+                          "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+                # when everything is just peachy
+                if listcount == footercount and footercount == bodycount and bodycount == listcount:
+                    print(str(sectionidx) + ":\t\tbody=" + str(bodycount) +
+                          "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+                # when an enumerated item gets appended to preceding carryover text
+                elif bodycount == footercount and footercount == listcount + 1:
+                    iscarryover = True
+                    newfootnotes[0:1] = re.split("\n\t", newfootnotes[0])
+                    print(str(sectionidx) + ": type 1\tbody=" + str(bodycount) +
+                          "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+                # when there is only preceding carryover text
+                elif listcount == bodycount and footercount == listcount + 1:
+                    iscarryover = True
+                    print(str(sectionidx) + ": type 2\tbody=" + str(bodycount) +
+                          "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+                # when the footer lists a reference not found in the body. (need to match
+                # reference number in text to the one in the body).
+                elif listcount == footercount and listcount == bodycount + 1:
+                    temp = []
+                    bodyrefs = re.findall("[\.,\?\";]\d[\) |\n]", body)
+                    for bodyref in bodyrefs:
+                        bodyrefnum = int(re.findall('\d', bodyref)[0])
+                        for newfootnote in newfootnotes:
+                            footrefnum = int(re.findall(r'^\D*(\d+)', newfootnote)[0])
+                            if footrefnum == bodyrefnum:
+                                temp.append(newfootnote)
+                            else:
+                                continue
+                    newfootnotes = temp
+                    print(str(sectionidx) + ": type 3\tbody=" + str(bodycount) +
+                          "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+                # format text and append to document
+                if iscarryover:
+                    footnotes[-1] = footnotes[-1].rstrip()
+                    footnotes[-1] += " " + newfootnotes[0]
+                    del newfootnotes[0]
+                    iscarryover = False
+                for newfootnote in newfootnotes:
+                    footrefnum = int(re.findall(r'^\D*(\d+)', newfootnote)[0])
+                    body = re.sub(r'([\.,\?\";])%d([\) |\n])'%footrefnum, r'\1<a href="#%d">%d</a>\2'%(footnotecount,footnotecount), body)
+                    newfootnote = re.sub(r'^%d '%footrefnum, r'%d '%footnotecount, newfootnote)
+                    footnotecount += 1
+                    footnotes.append(newfootnote)
+                #  text += html2text(body) # strips anchor tags...
+                text += body
+            else:
+                print(str(sectionidx) + ": no footnotes")
+                #  body = html2text(body) # strips anchor tags...
+                text += body
+    return text, footnotes
+
+
 #
 # Parse table of contents
 #
@@ -128,3 +249,11 @@ prefix = "http://www.constitution.org/js/"
 soup = download_page(prefix + "js_005.htm")
 book = parse_toc(soup)
 generate_toc(book)
+
+soup = download_page(prefix + "js_336.htm")
+[ text, footnotes ] = parse_chapter(soup)
+
+#  for idx in range(0, len(book["url"])):
+#      soup = download_page(book["url"][idx])
+#      [ text, footnotes ] = parse_chapter(soup)
+#      generate_chapter(text, footnotes, book)

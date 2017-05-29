@@ -297,9 +297,6 @@ soup = download_page(prefix + "js_005.htm")
 book = parse_toc(soup)
 generate_toc(book)
 
-soup = download_page(prefix + "js_336.htm")
-[ text, footnotes ] = parse_chapter(soup)
-
 for idx in range(0, len(book["url"])):
     soup = download_page(book["url"][idx])
     [ text, footnotes ] = parse_chapter(soup)

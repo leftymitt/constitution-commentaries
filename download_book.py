@@ -146,6 +146,7 @@ def parse_chapter(soup):
         comment.extract()
 
     if len(content.prettify().split("<hr/>")) == 3:
+        [tag.decompose() for tag in content("center")]
         [text, footnotes, etc] = content.prettify().split("<hr/>")
         text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)
         footnotes = re.sub("<font>|</font>|  +|<div .*>|</div>", "", footnotes)

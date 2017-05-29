@@ -1,10 +1,5 @@
 #! /usr/bin/env python3
 
-#  from bs4 import BeautifulSoup as bs
-#  from bs4 import Comment
-#  #  from html2text import html2text
-#  import urllib3
-#  import re
 import os
 
 import functions as fn

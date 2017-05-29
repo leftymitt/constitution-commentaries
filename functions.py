@@ -173,11 +173,14 @@ def parse_chapter(soup):
                 body = temp[0]
                 footer = bs(re.sub("(<p>\n|</p>\n)", "",
                                    temp[1]), "lxml").find("ul").text
+
                 # get the number of references in the main body
                 bodycount = len(re.findall("[\.,\?\";]\d[\) |\n]", body))
+
                 # get the number of items enumerated in the footer
                 listcount = len(re.findall(
                     '_-_ *\d ', re.sub('\n', ' ', re.sub('(\n\n|\n +\n)', '_-_', footer))))
+
                 # the the number of items (total) in the footer
                 newfootnotes = [""]
                 temp = list(filter(None, [item.strip()
@@ -192,26 +195,31 @@ def parse_chapter(soup):
                         newfootnotes[-1] += " " + item
                 footercount = len(newfootnotes)
                 iscarryover = False
+
                 # print any mismatch
                 if listcount != footercount or footercount != bodycount or bodycount != listcount:
                     print(str(sectionidx) + ": mismatch\tbody=" + str(bodycount) +
                           "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
-                # when everything is just peachy
-                if listcount == footercount and footercount == bodycount and bodycount == listcount:
-                    print(str(sectionidx) + ":\t\tbody=" + str(bodycount) +
-                          "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+
+                #  # when everything is just peachy
+                #  if listcount == footercount and footercount == bodycount and bodycount == listcount:
+                #      print(str(sectionidx) + ":\t\tbody=" + str(bodycount) +
+                #            "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+
                 # when an enumerated item gets appended to preceding carryover
                 # text
-                elif bodycount == footercount and footercount == listcount + 1:
+                if bodycount == footercount and footercount == listcount + 1:
                     iscarryover = True
                     newfootnotes[0:1] = re.split("\n\t", newfootnotes[0])
                     print(str(sectionidx) + ": type 1\tbody=" + str(bodycount) +
                           "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+
                 # when there is only preceding carryover text
                 elif listcount == bodycount and footercount == listcount + 1:
                     iscarryover = True
                     print(str(sectionidx) + ": type 2\tbody=" + str(bodycount) +
                           "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+
                 # when the footer lists a reference not found in the body. (need to match
                 # reference number in text to the one in the body).
                 elif listcount == footercount and listcount == bodycount + 1:
@@ -229,6 +237,7 @@ def parse_chapter(soup):
                     newfootnotes = temp
                     print(str(sectionidx) + ": type 3\tbody=" + str(bodycount) +
                           "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+
                 # format text and append to document
                 if iscarryover:
                     footnotes[-1] = footnotes[-1].rstrip().strip()
@@ -243,7 +252,6 @@ def parse_chapter(soup):
                         r'^\D*%d ' % footrefnum, r'<a id="%d"></a> ' % footnotecount, newfootnote)
                     footnotecount += 1
                     footnotes.append(newfootnote)
-                #  text += html2text(body) # strips anchor tags...
                 text += body
             else:
                 print(str(sectionidx) + ": no footnotes?")

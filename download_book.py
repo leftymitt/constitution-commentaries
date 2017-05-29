@@ -227,7 +227,7 @@ def parse_chapter(soup):
                             footrefnum = int(re.findall(
                                 r'^\D*(\d+)', newfootnote)[0])
                             if footrefnum == bodyrefnum:
-                                temp.append(newfootnote)
+                                temp.append(newfootnote.rstrip().strip())
                             else:
                                 continue
                     newfootnotes = temp
@@ -235,7 +235,7 @@ def parse_chapter(soup):
                           "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
                 # format text and append to document
                 if iscarryover:
-                    footnotes[-1] = footnotes[-1].rstrip()
+                    footnotes[-1] = footnotes[-1].rstrip().strip()
                     footnotes[-1] += " " + newfootnotes[0]
                     del newfootnotes[0]
                     iscarryover = False
@@ -272,11 +272,9 @@ def generate_chapter(text, footnotes, book, idx):
         '[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
 
     html = ''
-    html += '<html>'
-    html += '<head><meta charset="utf-8"></head>'
-    html += '<h1 class="uk-h2">Chapter ' + \
+    html += '<h1 class="uk-h2">chapter ' + \
         str(book["chapter"][idx]) + '</h1>\n'
-    html += '<h2 class="uk-h4">' + book["chaptertitle"][idx] + '</h2>\n'
+    html += '<h2 class="uk-h4">' + book["chaptertitle"][idx].strip().lower() + '</h2>\n'
     html += '<div class="uk-article">\n' + text + '</div>\n'
     html += '<hr>\n'
     html += '<div class="uk-article-meta">\n'
@@ -285,7 +283,6 @@ def generate_chapter(text, footnotes, book, idx):
         html += '<li>' + footnote + '</li>\n'
     html += '</ol>\n'
     html += '</div>\n'
-    html += '</html>'
 
     f = open(outdir + outfile, "w")
     f.write(html)

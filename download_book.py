@@ -66,8 +66,8 @@ def download_book(prefix, book):
             os.makedirs(outdir, exist_ok=True)
         response = http.request('GET', prefix + book["url"][idx])
         soup = bs(response.data, "lxml")
-        outfile = str(book["chapter"][idx]) + " " + \
-            book["chaptertitle"][idx] + ".html"
+        outfile = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub(
+            '[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
         with open(outdir + outfile, "wb") as f:
             f.write(response.data)
         response.release_conn()

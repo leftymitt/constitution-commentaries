@@ -234,7 +234,7 @@ def parse_chapter(soup):
                 for newfootnote in newfootnotes:
                     footrefnum = int(re.findall(r'^\D*(\d+)', newfootnote)[0])
                     body = re.sub(r'([\.,\?\";])%d([\) |\n])' % footrefnum,
-                                  r'\1<a href="#%d">%d</a>\2' % (footnotecount, footnotecount), body)
+                                  r'\1<sup><a href="#%d">%d</a></sup>\2' % (footnotecount, footnotecount), body)
                     newfootnote = re.sub(
                         r'^%d ' % footrefnum, r'<a id="%d"></a>%d ' % (footnotecount, footnotecount), newfootnote)
                     footnotecount += 1

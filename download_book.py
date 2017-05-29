@@ -235,7 +235,7 @@ def parse_chapter(soup):
                     body = re.sub(r'([\.,\?\";])%d([\) |\n])' % footrefnum,
                                   r'\1<a href="#%d">%d</a>\2' % (footnotecount, footnotecount), body)
                     newfootnote = re.sub(
-                        r'^%d ' % footrefnum, r'%d ' % footnotecount, newfootnote)
+                        r'^%d ' % footrefnum, r'<a id="%d"></a>%d ' % (footnotecount, footnotecount), newfootnote)
                     footnotecount += 1
                     footnotes.append(newfootnote)
                 #  text += html2text(body) # strips anchor tags...

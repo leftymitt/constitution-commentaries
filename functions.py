@@ -249,8 +249,10 @@ def parse_section_type1(section, text, footnotes, footnotecount):
     return text, footnotes, footnotecount
 
 
-def parse_chapter_type3():
-    print("hi")
+def parse_section_type2(section, text, footnotes, footnotecount):
+    temp = re.split('<p>\n *<b>\n *__+\n *<br/>\n *', sections[sectionidx])
+    body = temp[0]
+    footer = re.sub("<p>|</p>", "", temp[1]).strip()
 
 
 def parse_chapter(soup):
@@ -268,10 +270,16 @@ def parse_chapter(soup):
         footnotes = []
         footnotecount = 1
         for sectionidx in range(0, len(sections)):
+            notparsed = True
             print("\nsection " + str(sectionidx))
             temp = re.split('\n *<b>\n *__+\n *</b>\n *', sections[sectionidx])
-            if len(temp) == 2:
+            if len(temp) == 2 and notparsed:
                 [text, footnotes, footnotecount] = parse_section_type1(sections[sectionidx], text, footnotes, footnotecount)
+                notparsed = False
+            temp = re.split('<p>\n *<b>\n *__+\n *<br/>\n *', sections[sectionidx])
+            if len(temp) == 2 and notparsed:
+                [text, footnotes, footnotecount] = parse_section_type2(sections[sectionidx], text, footnotes, footnotecount)
+                notparsed = False
             else:
                 print(str(sectionidx) + ": no footnotes?")
                 print(temp)

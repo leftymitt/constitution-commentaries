@@ -162,7 +162,11 @@ def parse_chapter_type1(content):
     return text, footnotes
 
 
-def parse_section_type1(body, footer, text, footnotes, footnotecount, sectionidx):
+def parse_section_type1(section, text, footnotes, footnotecount):
+    # extract text (above the ___) and footer (below the ___)
+    temp = re.split('\n *<b>\n *__+\n *</b>\n *', section)
+    body = temp[0]
+    footer = bs(re.sub("(<p>\n|</p>\n)", "", temp[1]), "lxml").find("ul").text
     # get the number of references in the main body
     bodycount = len(re.findall("[\.,\?\";]\d[\) |\n]", body))
 
@@ -187,12 +191,12 @@ def parse_section_type1(body, footer, text, footnotes, footnotecount, sectionidx
 
     # print any mismatch
     if listcount != footercount or footercount != bodycount or bodycount != listcount:
-        print(str(sectionidx) + ": mismatch\tbody=" + str(bodycount) +
+        print("mismatch:\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     #  # when everything is just peachy
     if listcount == footercount and footercount == bodycount and bodycount == listcount:
-        print(str(sectionidx) + ":\t\tbody=" + str(bodycount) +
+        print("all good:\t\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     # when an enumerated item gets appended to preceding carryover
@@ -200,13 +204,13 @@ def parse_section_type1(body, footer, text, footnotes, footnotecount, sectionidx
     if bodycount == footercount and footercount == listcount + 1:
         iscarryover = True
         newfootnotes[0:1] = re.split("\n\t", newfootnotes[0])
-        print(str(sectionidx) + ": type 1\tbody=" + str(bodycount) +
+        print("mismatch: type 1\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     # when there is only preceding carryover text
     elif listcount == bodycount and footercount == listcount + 1:
         iscarryover = True
-        print(str(sectionidx) + ": type 2\tbody=" + str(bodycount) +
+        print("mismatch: type 2\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     # when the footer lists a reference not found in the body. (need to match
@@ -224,7 +228,7 @@ def parse_section_type1(body, footer, text, footnotes, footnotecount, sectionidx
                 else:
                     continue
         newfootnotes = temp
-        print(str(sectionidx) + ": type 3\tbody=" + str(bodycount) +
+        print("mismatch: type 3\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     # format text and append to document
@@ -264,14 +268,10 @@ def parse_chapter(soup):
         footnotes = []
         footnotecount = 1
         for sectionidx in range(0, len(sections)):
+            print("\nsection " + str(sectionidx))
             temp = re.split('\n *<b>\n *__+\n *</b>\n *', sections[sectionidx])
             if len(temp) == 2:
-                #  # extract text (above the ___) and footer (below the ___)
-                body = temp[0]
-                footer = bs(re.sub("(<p>\n|</p>\n)", "",
-                                   temp[1]), "lxml").find("ul").text
-                [text, footnotes, footnotecount] = parse_section_type1(
-                    body, footer, text, footnotes, footnotecount, sectionidx)
+                [text, footnotes, footnotecount] = parse_section_type1(sections[sectionidx], text, footnotes, footnotecount)
             else:
                 print(str(sectionidx) + ": no footnotes?")
                 print(temp)

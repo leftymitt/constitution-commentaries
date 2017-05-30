@@ -167,8 +167,9 @@ def parse_section_type1(section, text, footnotes, footnotecount):
     temp = re.split('\n *<b>\n *__+\n *</b>\n *', section)
     body = temp[0]
     footer = bs(re.sub("(<p>\n|</p>\n)", "", temp[1]), "lxml").find("ul").text
+
     # get the number of references in the main body
-    bodycount = len(re.findall("[\.,\?\";]\d[\) |\n]", body))
+    bodycount = len(re.findall("[\.,\?\";:]\d[\) |\n]", body))
 
     # get the number of items enumerated in the footer
     listcount = len(re.findall(

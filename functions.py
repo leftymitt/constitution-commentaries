@@ -167,8 +167,19 @@ def parse_chapter_type1(content):
 def parse_section_type1(section, text, footnotes, footnotecount):
     # extract text (above the ___) and footer (below the ___)
     temp = re.split('\n *<b>\n *__+\n *</b>\n *', section)
-    body = temp[0]
-    footer = bs(re.sub("(<p>\n|</p>\n)", "", temp[1]), "lxml").find("ul").text
+    #  body = temp[0].strip()
+    body = re.sub('<b>\n + __+\n +</b>\n','',temp[0])
+    if bs(re.sub("(<p>\n|</p>\n)", "", temp[1]), "lxml").find("ul"):
+        footer = bs(re.sub("(<p>\n|</p>\n)", "", temp[1]), "lxml").find("ul").text
+    elif bs(re.sub("(<p>\n|</p>\n)", "", temp[1]), "lxml").find("ol"):
+        footer = bs(re.sub("(<p>\n|</p>\n)", "", temp[1]), "lxml").find("ol").text
+        body += temp[1].split("<ol>")[0].strip()
+    else:
+        footer = temp[1]
+        listcount = len(re.findall('(^\d+ |\n\t\d+ |<br/>\n +\d+ )', footer))
+        if listcount == 0:
+            footer = ""
+            body += re.sub(r'<b>[\s\S]+</b>\n', '', temp[1]).strip()
 
     # get the number of references in the main body
     bodycount = len(re.findall("[\.,\?\";:]\d[\) |\n]", body))
@@ -192,15 +203,10 @@ def parse_section_type1(section, text, footnotes, footnotecount):
     footercount = len(newfootnotes)
     iscarryover = False
 
-    # print any mismatch
-    if listcount != footercount or footercount != bodycount or bodycount != listcount:
-        print("mismatch:\tbody=" + str(bodycount) +
-              "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
-
     #  # when everything is just peachy
-    if listcount == footercount and footercount == bodycount and bodycount == listcount:
-        print("all good:\t\tbody=" + str(bodycount) +
-              "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+    #  if listcount == footercount and footercount == bodycount and bodycount == listcount:
+    #      print("all good:\t\tbody=" + str(bodycount) +
+    #            "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     # when an enumerated item gets appended to preceding carryover
     # text
@@ -234,6 +240,12 @@ def parse_section_type1(section, text, footnotes, footnotecount):
         print("mismatch: type 3\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
+    #  else listcount != footercount or footercount != bodycount or bodycount != listcount:
+    else:
+        print("mismatch unknown:\tbody=" + str(bodycount) +
+              "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+
+
     # format text and append to document
     if iscarryover:
         footnotes[-1] = footnotes[-1].rstrip().strip()
@@ -254,16 +266,27 @@ def parse_section_type1(section, text, footnotes, footnotecount):
 
 def parse_section_type2(section, text, footnotes, footnotecount):
     #  temp = re.split('<p>\n *<b>\n *__+\n *<br/>\n *', section)
-    temp = re.split('(?:<p>)*\n *<b>\n *__+\n *<br/>\n *', section)
-    body = temp[0].strip()
-    footer = re.sub("<p>|</p>|</b>", "", temp[1]).strip()
+    #  temp = re.split('(?:<p>)*\n *<b>\n *__+\n *<br/>\n *', section)
+    temp = re.split('(?:<p>)*\n *<b>\n *__+\n *(?:</b>\n +<br/>|<br/>)\n *', section)
+    #  body = temp[0].strip()
+    body = re.sub('<b>\n + __+\n +</b>\n','',temp[0])
+    #  footer = re.sub("<p>|</p>|</b>|<b>|<div>|</div>", "", temp[1]).strip()
+    footer = re.sub("<p>|</p>|</b>|<b>", "", temp[1]).strip()
 
     # get the number of references in the main body
-    bodycount = len(re.findall("[\.,\?\";:]\d[\) |\n]", body))
+    #  bodycount = len(re.findall("[\.,\?\";:]\d[\) |\n]", body))
+    bodycount = len(re.findall("(?:[\.,\?\";:a-z\]]|\.\" )\d+[\) \n]|<b>\n +\d+\n +</b>\n +", body))
 
     # get the number of items enumerated in the footer
-    #  listcount = len(re.findall('(^\d |\n\t\d )', footer))
-    listcount = len(re.findall('(^\d+ |\n\t\d+ |<br/>\n +\d+ )', footer))
+    if bs(footer, "lxml").findAll("ol"):
+        #  footer = bs(footer, "lxml").findAll("ol")[0].prettify()
+        footer = re.findall('<ol>\n([\S\s]*)</ol>', bs(footer, "lxml").findAll("ol")[0].prettify())[0].strip()
+        #  listcount = len(re.findall('^\d+|[?:<br/>\n] +\d+ ', footer))
+        listcount = len(re.findall('^\d+|<br/>\n +\d+ |\n\t\d+ ', footer))
+
+    else:
+        #  listcount = len(re.findall('(^\d |\n\t\d )', footer))
+        listcount = len(re.findall('(^\d+ |\n\t\d+ |<br/>\n +\d+ )', footer))
 
     # the the number of items (total) in the footer
     newfootnotes = [""]
@@ -280,19 +303,25 @@ def parse_section_type2(section, text, footnotes, footnotecount):
     footercount = len(newfootnotes)
     iscarryover = False
 
-    # print any mismatch
-    if listcount != footercount or footercount != bodycount or bodycount != listcount:
-        print("mismatch:\tbody=" + str(bodycount) +
-              "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
-
     #  # when everything is just peachy
-    if listcount == footercount and footercount == bodycount and bodycount == listcount:
-        print("all good:\t\tbody=" + str(bodycount) +
-              "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+    #  if listcount == footercount and footercount == bodycount and bodycount == listcount:
+    #      print("all good:\t\tbody=" + str(bodycount) +
+    #            "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     # when there is only preceding carryover text
-    elif listcount == bodycount and footercount == listcount + 1:
-        iscarryover = True
+    if listcount == bodycount and footercount == listcount + 1:
+        #  iscarryover = True
+        # the the number of items (total) in the footer
+        newfootnotes = [""]
+        temp = list(filter(None, [ item.strip() for item in re.split('\n\t|<br/>\n', footer) ]))
+        for item in temp:
+            if re.match("^\d  ", item):
+                if newfootnotes[-1]:
+                    newfootnotes.append(item)
+                else:
+                    newfootnotes[-1] += " " + item
+            else:
+                newfootnotes[-1] += " " + item
         print("mismatch: type 2\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
@@ -313,11 +342,18 @@ def parse_section_type2(section, text, footnotes, footnotecount):
         newfootnotes = temp
         print("mismatch: type 3\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+    
+    # print any mismatch
+    #  else listcount != footercount or footercount != bodycount or bodycount != listcount:
+    else:
+        print("mismatch unknown:\tbody=" + str(bodycount) +
+              "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
+
 
     # format text and append to document
     if iscarryover:
-        footnotes[-1] = footnotes[-1].rstrip().strip()
-        footnotes[-1] += " " + newfootnotes[0]
+        footnotes[-1] = footnotes[-1].rstrip()
+        footnotes[-1] += " " + newfootnotes[0].lstrip()
         del newfootnotes[0]
         iscarryover = False
     for newfootnote in newfootnotes:
@@ -339,9 +375,13 @@ def parse_chapter(soup):
     if len(content.prettify().split("<hr/>")) == 3:
         [text, footnotes] = parse_chapter_type1(content)
     else:
-        sections = content.prettify().split("</center>")
+        #  sections = content.prettify().split("</center>")
+        #  sections = re.split(r'</center>|<b>\n +[A-Z\d\t \.\]\[]+Book .*.\n +</b>\n', content.prettify())
+        #  sections = re.split(r'</center>|<b>\n    88\t HISTORY OF THE COLONIES.\t \[Book I.\n   </b>\n', content.prettify())
+        sections = re.split(r'</center>|<b>\n +88\t [A-Z\t\. ]+ \[Book I.\n   </b>\n|<b>\n +130\t [A-Z\t\. ]+ \[BOOK I.\n   </b>\n|<b>\n +144\t [A-Z\t\. ]+ \[BOOK I.\n   </b>\n', content.prettify())
         del sections[0]
-        sections = [item.split("<center>")[0] for item in sections]
+        sections = [item.split("<center>")[0].strip() for item in sections]
+        sections = list(filter(None, [ item.strip() for item in sections ]))
 
         text = ""
         footnotes = []
@@ -351,12 +391,14 @@ def parse_chapter(soup):
             print("\nsection " + str(sectionidx))
             temp = re.split('\n *<b>\n *__+\n *</b>\n *', sections[sectionidx])
             if len(temp) == 2 and notparsed:
+                print("section parse type 1")
                 [text, footnotes, footnotecount] = parse_section_type1(
                     sections[sectionidx], text, footnotes, footnotecount)
                 notparsed = False
-            temp = re.split('<p>\n *<b>\n *__+\n *<br/>\n *',
-                            sections[sectionidx])
+            #  temp = re.split('(?:<p>\n)* *<b>\n *__+\n *<br/>\n *', sections[sectionidx])
+            temp = re.split('(?:<p>)*\n *<b>\n *__+\n *(?:</b>\n +<br/>|<br/>)\n *', sections[sectionidx])
             if len(temp) == 2 and notparsed:
+                print("section parse type 2")
                 [text, footnotes, footnotecount] = parse_section_type2(
                     sections[sectionidx], text, footnotes, footnotecount)
                 notparsed = False

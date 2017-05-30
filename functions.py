@@ -51,9 +51,11 @@ def parse_toc(soup):
     return book
 
 
-def download_book(prefix, book):
+def download_original(prefix, book):
     http = urllib3.PoolManager()
     for idx in range(0, len(book["url"])):
+        print("downloading chapter " +
+              str(book["chapter"][idx]) + " - " + book["chaptertitle"][idx])
         if book["book"][idx] != 0:
             outdir = "original/vol" + \
                 str(book["volume"][idx]) + "/book" + \

@@ -275,6 +275,7 @@ def parse_chapter(soup):
             else:
                 print(str(sectionidx) + ": no footnotes?")
                 print(temp)
+                text += temp[0]
     return text, footnotes
 
 

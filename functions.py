@@ -360,7 +360,7 @@ def parse_chapter(soup):
                 [text, footnotes, footnotecount] = parse_section_type2(
                     sections[sectionidx], text, footnotes, footnotecount)
                 notparsed = False
-            else:
+            if notparsed == True:
                 print(str(sectionidx) + ": no footnotes?")
                 print(temp)
                 text += temp[0]

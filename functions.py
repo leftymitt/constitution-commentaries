@@ -76,45 +76,42 @@ def download_original(prefix, book):
 def generate_toc(book):
     html       = '<div class="uk-panel uk-panel-box">\n'
     html      += '  <h3 class="uk-panel-title">table of contents</h3>\n'
-    vol1html   = '  <ul class="uk-nav-side uk-nav" data-uk-nav>\n'
+    html      += '  <hr>\n'
+    vol1html   = '  <ul class="uk-nav uk-nav-side">\n'
     vol1html  += '    <li class="uk-nav-header">volume 1</li>\n'
-    book1html  = '    <li class="uk-parent">\n'
-    book1html += '      <ul class="uk-nav-sub">\n'
-    book1html += '        <li class="uk-nav-header">book 1: ' + str(book["booktitle"][0]).strip().lower() + '</li>\n'
-    book2html  = '    <li class="uk-parent">\n'
-    book2html += '      <ul class="uk-nav-sub">\n'
-    book2html += '        <li class="uk-nav-header">book 2: ' + str(book["booktitle"][1]).strip().lower() + '</li>\n'
-    book3html  = '    <li class="uk-parent">\n'
-    book3html += '      <ul class="uk-nav-sub">\n'
-    book3html += '        <li class="uk-nav-header">book 3: ' + str(book["booktitle"][2]).strip().lower() + '</li>\n'
-    vol2html   = '  <ul class="uk-nav-sub">\n'
-    vol2html  += '    <li class="uk-nav-header">volume 3</li>\n'
-    vol3html   = '  <ul class="uk-nav-sub">\n'
+    vol1html  += '  </ul>\n'
+    vol1html  += '  <ul class="uk-nav uk-nav-side uk-margin-small-left">\n'
+    book1html  = '    <li class="uk-nav-header">book 1: ' + str(book["booktitle"][0]).strip().lower() + '</li>\n'
+    book2html  = '    <li class="uk-nav-header">book 2: ' + str(book["booktitle"][1]).strip().lower() + '</li>\n'
+    book3html  = '    <li class="uk-nav-header">book 3: ' + str(book["booktitle"][2]).strip().lower() + '</li>\n'
+    vol2html   = '  <ul class="uk-nav uk-nav-side">\n'
+    vol2html  += '    <li class="uk-nav-header">volume 2</li>\n'
+    vol2html  += '  </ul>\n'
+    vol2html  += '  <ul class="uk-nav uk-nav-side">\n'
+    vol3html   = '  <ul class="uk-nav uk-nav-side">\n'
     vol3html  += '    <li class="uk-nav-header">volume 3</li>\n'
+    vol3html  += '  </ul>\n'
+    vol3html  += '  <ul class="uk-nav uk-nav-side">\n'
     for idx in range(0, len(book["volume"])):
         chaptertitle = str(book["chaptertitle"][idx]).strip().lower()
         chapterurl = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub('[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
         if book["volume"][idx] == 1:
             if book["book"][idx] == 1:
-                book1html += '        <li><a href="vol1/book1/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
+                book1html += '    <li><a href="vol1/book1/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
             elif book["book"][idx] == 2:
-                book2html += '        <li><a href="vol1/book2/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
+                book2html += '    <li><a href="vol1/book2/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
             elif book["book"][idx] == 3:
-                book3html += '        <li><a href="vol1/book3/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
+                book3html += '    <li><a href="vol1/book3/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
         elif book["volume"][idx] == 2:
             vol2html  += '    <li><a href="vol2/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
         elif book["volume"][idx] == 3:
             vol3html  += '    <li><a href="vol3/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
-    book1html += '      </ul>\n'
-    book1html += '    </li>\n'
-    book2html += '      </ul>\n'
-    book2html += '    </li>\n'
-    book3html += '      </ul>\n'
-    book3html += '    </li>\n'
     vol1html  += book1html + book2html + book3html + '  </ul>\n'
     vol2html  += '  </ul>\n'
     vol3html  += '  </ul>\n'
-    html += vol1html + vol2html + vol3html
+    html += vol1html + '  <hr>\n'
+    html += vol2html + '  <hr>\n'
+    html += vol3html
     html += '</div>\n'
     outdir = "revised/"
     if not os.path.exists(outdir):

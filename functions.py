@@ -94,7 +94,7 @@ def generate_toc(book):
     vol3html  += '  <ul class="uk-nav uk-nav-side">\n'
     for idx in range(0, len(book["volume"])):
         chaptertitle = str(book["chaptertitle"][idx]).strip().lower()
-        chapterurl = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub('[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
+        chapterurl = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub('[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + "/"
         if book["volume"][idx] == 1:
             if book["book"][idx] == 1:
                 book1html += '    <li><a href="vol1/book1/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
@@ -421,10 +421,12 @@ def generate_chapter(text, footnotes, book, idx):
     outfile = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub(
         '[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
 
-    html = ''
-    html += '<h1 class="uk-h2">chapter ' + \
-        str(book["chapter"][idx]) + '</h1>\n'
-    html += '<h2 class="uk-h4">' + book["chaptertitle"][idx].strip().lower() + '</h2>\n'
+    html = '---\n'
+    html += 'title: "chapter ' + \
+        str(book["chapter"][idx]) + ': ' + \
+        book["chaptertitle"][idx].strip().lower() + '"\n'
+    html += 'layout: post\n'
+    html += '---\n\n'
     html += '<div class="uk-article">\n' + text + '</div>\n'
     html += '<hr>\n'
     html += '<div class="uk-article-meta">\n'

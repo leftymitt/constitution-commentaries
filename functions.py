@@ -237,7 +237,6 @@ def parse_section_type1(section, text, footnotes, footnotecount):
         print("mismatch: type 3\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
-    #  else listcount != footercount or footercount != bodycount or bodycount != listcount:
     else:
         print("mismatch unknown:\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
@@ -262,27 +261,19 @@ def parse_section_type1(section, text, footnotes, footnotecount):
 
 
 def parse_section_type2(section, text, footnotes, footnotecount):
-    #  temp = re.split('<p>\n *<b>\n *__+\n *<br/>\n *', section)
-    #  temp = re.split('(?:<p>)*\n *<b>\n *__+\n *<br/>\n *', section)
     temp = re.split('(?:<p>)*\n *<b>\n *__+\n *(?:</b>\n +<br/>|<br/>)\n *', section)
-    #  body = temp[0].strip()
     body = re.sub('<b>\n + __+\n +</b>\n','',temp[0])
-    #  footer = re.sub("<p>|</p>|</b>|<b>|<div>|</div>", "", temp[1]).strip()
     footer = re.sub("<p>|</p>|</b>|<b>", "", temp[1]).strip()
 
     # get the number of references in the main body
-    #  bodycount = len(re.findall("[\.,\?\";:]\d[\) |\n]", body))
     bodycount = len(re.findall("(?:[\.,\?\";:a-z\]]|\.\" )\d+[\) \n]|<b>\n +\d+\n +</b>\n +", body))
 
     # get the number of items enumerated in the footer
     if bs(footer, "lxml").findAll("ol"):
-        #  footer = bs(footer, "lxml").findAll("ol")[0].prettify()
         footer = re.findall('<ol>\n([\S\s]*)</ol>', bs(footer, "lxml").findAll("ol")[0].prettify())[0].strip()
-        #  listcount = len(re.findall('^\d+|[?:<br/>\n] +\d+ ', footer))
         listcount = len(re.findall('^\d+|<br/>\n +\d+ |\n\t\d+ ', footer))
 
     else:
-        #  listcount = len(re.findall('(^\d |\n\t\d )', footer))
         listcount = len(re.findall('(^\d+ |\n\t\d+ |<br/>\n +\d+ )', footer))
 
     # the the number of items (total) in the footer
@@ -307,7 +298,6 @@ def parse_section_type2(section, text, footnotes, footnotecount):
 
     # when there is only preceding carryover text
     if listcount == bodycount and footercount == listcount + 1:
-        #  iscarryover = True
         # the the number of items (total) in the footer
         newfootnotes = [""]
         temp = list(filter(None, [ item.strip() for item in re.split('\n\t|<br/>\n', footer) ]))
@@ -341,7 +331,6 @@ def parse_section_type2(section, text, footnotes, footnotecount):
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
 
     # print any mismatch
-    #  else listcount != footercount or footercount != bodycount or bodycount != listcount:
     else:
         print("mismatch unknown:\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))

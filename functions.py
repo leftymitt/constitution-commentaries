@@ -375,13 +375,14 @@ def parse_chapter(soup):
 
     # when chapter text and footnotes are split into several sections
     else:
-        #  sections = content.prettify().split("</center>")
-        #  sections = re.split(r'</center>|<b>\n +[A-Z\d\t \.\]\[]+Book .*.\n +</b>\n', content.prettify())
-        #  sections = re.split(r'</center>|<b>\n    88\t HISTORY OF THE COLONIES.\t \[Book I.\n   </b>\n', content.prettify())
-        sections = re.split(r'</center>|<b>\n +88\t [A-Z\t\. ]+ \[Book I.\n   </b>\n|<b>\n +130\t [A-Z\t\. ]+ \[BOOK I.\n   </b>\n|<b>\n +144\t [A-Z\t\. ]+ \[BOOK I.\n   </b>\n', content.prettify())
+        # exceptions needed for pages 88 (rhode island), 130 (georgia), and
+        # 144 (general review II)
+        sections = re.split(r'</center>', content.prettify())
         del sections[0]
         sections = [item.split("<center>")[0].strip() for item in sections]
         sections = list(filter(None, [ item.strip() for item in sections ]))
+        sections = [ re.split(r'[<p>\n +]?<b>\n +[0-9]+\t [A-Z ]+.\t \[B(?:ook|OOK) [A-Z\.]+\n +</b>\n +[</p>\n +]?', section) for section in sections ]
+        sections = [ item for section in sections for item in section ]
 
         text = ""
         footnotes = []

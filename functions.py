@@ -140,7 +140,9 @@ def clean_html(html):
     [tag.decompose() for tag in html("script")]
     [tag.decompose() for tag in html("noscript")]
     [tag.decompose() for tag in html("style")]
-    [tag.decompose() for tag in html("span")]
+    #  [tag.decompose() for tag in html("span")]
+    for match in html.findAll('span'):
+        match.replaceWithChildren()
     for comment in html.findAll(text=lambda text: isinstance(text, Comment)):
         comment.extract()
     return html

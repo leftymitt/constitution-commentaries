@@ -146,7 +146,7 @@ def clean_html(html):
     return html
 
 
-def parse_chapter_type1(content):
+def parse_full_section(content):
     [tag.decompose() for tag in content("center")]
     [text, footnotes, etc] = content.prettify().split("<hr/>")
     text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)
@@ -339,7 +339,7 @@ def parse_section_type2(section, text, footnotes, footnotecount):
         newfootnotes = temp
         print("mismatch: type 3\tbody=" + str(bodycount) +
               "\tlist=" + str(listcount) + "\tfooter=" + str(footercount))
-    
+
     # print any mismatch
     #  else listcount != footercount or footercount != bodycount or bodycount != listcount:
     else:
@@ -369,8 +369,11 @@ def parse_chapter(soup):
     content = soup.find("div", {"id": "stylesheet_body"})
     content = clean_html(content)
 
+    # when chapter has all text at top and all footnotes listed at the bottom
     if len(content.prettify().split("<hr/>")) == 3:
-        [text, footnotes] = parse_chapter_type1(content)
+        [text, footnotes] = parse_full_section(content)
+
+    # when chapter text and footnotes are split into several sections
     else:
         #  sections = content.prettify().split("</center>")
         #  sections = re.split(r'</center>|<b>\n +[A-Z\d\t \.\]\[]+Book .*.\n +</b>\n', content.prettify())

@@ -153,8 +153,19 @@ def parse_full_section(content):
     [text, footnotes, etc] = content.prettify().split("<hr/>")
     text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)
     footnotes = re.sub("<font>|</font>|  +|<div .*>|</div>", "", footnotes)
-    footnotes = [re.sub('\n+', ' ', item.text.strip().rstrip())
+    #  footnotes = [re.sub('\n+', ' ', item.text.strip().rstrip())
+    #               for item in bs(footnotes, 'lxml').findAll('p')]
+    footnotes = [re.sub('\n+', '', item.text.strip().rstrip())
                  for item in bs(footnotes, 'lxml').findAll('p')]
+
+    temp = []
+    for footnote in footnotes:
+        if re.match('^\d+. ', footnote):
+            temp.append(footnote)
+        else:
+            temp[-1] += ' ' + footnote
+    footnotes = temp
+
     for idx in range(0, len(footnotes)):
         footnotenum = "{0:0>3}".format(
             int(re.findall(r'^ *\d+', footnotes[idx])[0].strip()))

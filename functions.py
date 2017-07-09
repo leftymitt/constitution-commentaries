@@ -168,6 +168,7 @@ def parse_single_section(section, text, footnotes, footnotecount):
 
     if len(temp) == 2:
         body = re.sub('<b>\n + __+\n +</b>\n', '', temp[0])
+        body = re.sub('=A7', '§', body)
         if False:
             print("Placeholder")
         else:
@@ -176,7 +177,6 @@ def parse_single_section(section, text, footnotes, footnotecount):
             if listcount == 0:
                 footer = ""
                 body += re.sub(r'<b>[\s\S]+</b>\n', '', temp[1]).strip()
-                body = re.sub('=A7', '§', body)
 
         # get the number of references in the main body
         bodycount = len(re.findall("(?:[\.,\?\";:a-z\]]|\.\" )\d{1,2}[\) \n]| \d{1,2}\)|<b>\n +\d{1,2}\n +</b>\n +", body))

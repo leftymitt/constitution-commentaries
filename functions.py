@@ -164,7 +164,7 @@ def parse_full_section(content):
 
 
 def parse_single_section(section, text, footnotes, footnotecount):
-    temp = re.split('(?:<p>)*\n *<b>\n *__+\n *(?:</b>\n)* *(?:</p>)*(?:<br/>\n)*', section)
+    temp = re.split('(?:<p>\n)* *(?:<b>\n)* *__+\n *(?:</b>\n)* *(?:</p>)*(?:<br/>\n)*', section)
 
     if len(temp) == 2:
         body = re.sub('<b>\n + __+\n +</b>\n', '', temp[0])

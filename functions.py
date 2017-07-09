@@ -172,7 +172,7 @@ def parse_single_section(section, text, footnotes, footnotecount):
         if False:
             print("Placeholder")
         else:
-            footer = re.sub("<p>|</p>|</b>|<b>|<ol>|</ol>|<ul>|</ul>|<div>|</div>", "", temp[1]).strip()
+            footer = re.sub("<p>|</p>|</b>|<b>|<ol>|</ol>|<ul>|</ul>|<li>|</li>|<div>|</div>", "", temp[1]).strip()
             listcount = len(re.findall('(^\d{1,2} |\n\t\d{1,2} |<br/>\n +\d{1,2} |(?:\n +){4,}\d{1,2})', footer))
             if listcount == 0:
                 footer = ""

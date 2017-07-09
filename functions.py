@@ -461,6 +461,7 @@ def parse_section_type2(section, text, footnotes, footnotecount):
         footnotes[-1] += " " + newfootnotes[0].lstrip()
         del newfootnotes[0]
         iscarryover = False
+
     for newfootnote in newfootnotes:
         footrefnum = int(re.findall(r'^\D*(\d+)', newfootnote)[0])
         body = re.sub(r'([\.,\?\";])%d([\) |\n])' % footrefnum,

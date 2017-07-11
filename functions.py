@@ -149,6 +149,7 @@ def clean_html(html):
 
 
 def parse_full_section(content):
+    print("Printing full section.")
     [tag.decompose() for tag in content("center")]
     [text, footnotes, etc] = content.prettify().split("<hr/>")
     text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)

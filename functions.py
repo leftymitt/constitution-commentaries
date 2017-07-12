@@ -45,7 +45,7 @@ def parse_toc(soup):
             book["book"].append(bookidx)
             book["booktitle"].append(temp)
             book["chapter"].append(chapteridx)
-            book["chaptertitle"].append(re.sub('\t|\n', '', tdata[4].text))
+            book["chaptertitle"].append(re.sub('\t', '', re.sub('\n', ' ', tdata[4].text)))
             chapteridx += 1
     return book
 

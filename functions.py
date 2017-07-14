@@ -65,7 +65,7 @@ def download_original(prefix, book):
             os.makedirs(outdir, exist_ok=True)
         response = http.request('GET', prefix + book["url"][idx])
         soup = bs(response.data, "lxml")
-        outfile = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub(
+        outfile = str(book["chapter"][idx]).zfill(2)  + "-" + re.sub('[-\s]+', '-', re.sub(
             '[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
         with open(outdir + outfile, "wb") as f:
             f.write(response.data)
@@ -93,7 +93,7 @@ def generate_toc(book):
     vol3html  += '  <ul class="uk-nav uk-nav-side">\n'
     for idx in range(0, len(book["volume"])):
         chaptertitle = str(book["chaptertitle"][idx]).strip().lower()
-        chapterurl = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub('[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + "/"
+        chapterurl = str(book["chapter"][idx]).zfill(2)  + "-" + re.sub('[-\s]+', '-', re.sub('[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + "/"
         if book["volume"][idx] == 1:
             if book["book"][idx] == 1:
                 book1html += '    <li><a href="vol1/book1/' + chapterurl + '">ch ' + str(book["chapter"][idx]) + ': ' + chaptertitle + '</a></li>\n'
@@ -335,8 +335,7 @@ def generate_chapter(text, footnotes, book, idx):
     if not os.path.exists(outdir):
         os.makedirs(outdir, exist_ok=True)
 
-    outfile = str(book["chapter"][idx]) + "-" + re.sub('[-\s]+', '-', re.sub(
-        '[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
+    outfile = str(book["chapter"][idx]).zfill(2) + "-" + re.sub('[-\s]+', '-', re.sub('[^\w\s-]', '', book["chaptertitle"][idx]).strip().lower()) + ".html"
 
     html = '---\n'
     html += 'title: "chapter ' + \

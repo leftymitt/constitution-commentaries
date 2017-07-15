@@ -379,13 +379,14 @@ def generate_chapter(text, footnotes, book, idx):
     html += 'layout: post\n'
     html += '---\n\n'
     html += '<div class="uk-article">\n' + text + '</div>\n'
-    html += '<hr>\n'
-    html += '<div class="uk-article-meta">\n'
-    html += '<ol>\n'
-    for footnote in footnotes:
-        html += '<li>' + footnote + '</li>\n'
-    html += '</ol>\n'
-    html += '</div>\n'
+    if len(footnotes) > 0:
+        html += '<hr>\n'
+        html += '<div class="uk-article-meta">\n'
+        html += '<ol>\n'
+        for footnote in footnotes:
+            html += '<li>' + footnote + '</li>\n'
+        html += '</ol>\n'
+        html += '</div>\n'
 
     f = open(outdir + outfile, "w")
     f.write(html)

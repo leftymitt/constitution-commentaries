@@ -173,6 +173,15 @@ def parse_full_section(content):
     return text, footnotes
 
 
+def parse_end_section(content):
+    print("Printing end summary section.")
+    [tag.decompose() for tag in content("center")]
+    [text, footnotes] = content.prettify().split("<hr/>")
+    text = re.sub("<font>|</font>|  +| *<div.*>|</div>", "", text)
+    footnotes = ""
+    return text, footnotes
+
+
 def parse_single_section(section, text, footnotes, footnotecount):
     temp = re.split('(?:<p>\n *|<b>\n *|<b>\n *</b>\n *) *__+ *(?:</b>\n *|</p> *|<br/>\n)', section)
     if len(temp) == 1:
@@ -322,6 +331,10 @@ def parse_chapter(soup):
     # when chapter has all text at top and all footnotes listed at the bottom
     if len(content.prettify().split("<hr/>")) == 3:
         [text, footnotes] = parse_full_section(content)
+
+    # separare rule for concluding remarks section
+    if len(content.prettify().split("<hr/>")) == 2 and content.find("h3").text == 'CHAPTER XLV.':
+        [text, footnotes] = parse_end_section(content)
 
     # when chapter text and footnotes are split into several sections
     else:

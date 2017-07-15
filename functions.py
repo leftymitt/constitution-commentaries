@@ -307,6 +307,7 @@ def parse_single_section(section, text, footnotes, footnotecount):
             x.extract()
     text = soup.prettify()
     text = text.replace("/p&gt;", "")
+    text = text.replace("p&gt;", "")
     text = text.replace("&lt;p", "")
     return text, footnotes, footnotecount
 

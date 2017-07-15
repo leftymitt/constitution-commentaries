@@ -292,7 +292,8 @@ def parse_single_section(section, text, footnotes, footnotecount):
     else:
         print("no footnotes?")
         print(temp)
-        text += temp[0]
+        body = re.sub('=A7', '§', temp[0])
+        text += body
 
     # clean up tags
     soup = bs(text, "html.parser")

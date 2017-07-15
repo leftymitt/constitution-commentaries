@@ -333,7 +333,7 @@ def parse_chapter(soup):
         [text, footnotes] = parse_full_section(content)
 
     # separare rule for concluding remarks section
-    if len(content.prettify().split("<hr/>")) == 2 and content.find("h3").text == 'CHAPTER XLV.':
+    elif len(content.prettify().split("<hr/>")) == 2 and content.find("h3").text == 'CHAPTER XLV.':
         [text, footnotes] = parse_end_section(content)
 
     # when chapter text and footnotes are split into several sections

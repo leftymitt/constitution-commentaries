@@ -179,6 +179,9 @@ def parse_single_section(section, text, footnotes, footnotecount):
         temp = re.split('(?:<p>\n *|<b>\n *|<b>\n *</b>\n *) *__+ *(?:\n{2,}|\n |\t |</b>\n *|</p> *|<br/>\n)', section) # 337 section 82
     if len(temp) == 1:
         temp = re.split('(?:<p>\n *|<b>\n *|<b>\n *</b>\n *) *__+ *(?:\n\t|</b>\n *|</p> *|<br/>\n)', section) # 204 section 23
+    if len(temp) == 1:
+        temp = re.split('(?:<p>\n *|<b>\n *|<b>\n *</b>\n *) *__+ *(?:\n{2,}|\n|\t|</b>\n *|</p> *|<br/>\n)', section) # 314 section 21
+
 
     if (len(temp) == 2) or (len(temp) == 3):
 

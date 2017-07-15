@@ -290,6 +290,7 @@ def parse_single_section(section, text, footnotes, footnotecount):
         print(temp)
         text += temp[0]
 
+    # clean up tags
     soup = bs(text, "html.parser")
     for x in soup.find_all():
         if len(x.text) == 0:
@@ -297,6 +298,8 @@ def parse_single_section(section, text, footnotes, footnotecount):
         elif x.text == '\n':
             x.extract()
     text = soup.prettify()
+    text = text.replace("/p&gt;", "")
+    text = text.replace("&lt;p", "")
     return text, footnotes, footnotecount
 
 

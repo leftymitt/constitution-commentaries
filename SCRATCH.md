@@ -30,6 +30,15 @@ mismatch key:
    will break parsing on earlier pages in book 2)
  - section 4 type 3 (extra footnote)
 
+304:
+ - section 1 type 2
+ - section 2 type 1
+ - section 4 type 2
+ - section 21-24 type 2
+ - section 25 type 3
+ - section 26-28 type 2
+ - section 32-37 type 2
+
 309:
  - there seem to be tables in the text
  - section 24 type 3 (good)

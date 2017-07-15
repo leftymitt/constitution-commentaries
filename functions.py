@@ -188,6 +188,7 @@ def parse_single_section(section, text, footnotes, footnotecount):
 
         # get footer text
         footer = re.sub("<p>|</p>|</b>|<b>|<ol>|</ol>|<ul>|</ul>|<li>|</li>|<div>|</div>", "", temp[1]).strip()
+        footer = footer.replace("=09", "") # for 304 section 2
         if len(temp) == 3:
             footer += '<br/>\n ' + re.sub("<p>|</p>|</b>|<b>|<ol>|</ol>|<ul>|</ul>|<li>|</li>|<div>|</div>", "", temp[2]).strip()
 

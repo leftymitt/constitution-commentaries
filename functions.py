@@ -345,7 +345,7 @@ def parse_chapter(soup):
 
         # exceptions needed for pages 88 (rhode island), 130 (georgia), and
         # 144 (general review II)
-        sections = re.split(r'</center>', content.prettify())
+        sections = re.split(r'</center>|DEFINITION AND EVIDENCE OF TREASON.', content.prettify()) # hardcoded parser for 339 section 0
         del sections[0]
         sections = [item.split("<center>")[0].strip() for item in sections]
         sections = list(filter(None, [ item.strip() for item in sections ]))

@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import os
+from time import sleep
 
 import functions as fn
 
@@ -24,5 +25,6 @@ for idx in range(0, len(book["url"])):
     print("parsing chapter...")
     fn.generate_chapter(text, footnotes, book, idx)
     print("generating chapter...")
+    sleep(5)
 
 print("done.")

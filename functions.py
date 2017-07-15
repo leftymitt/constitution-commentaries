@@ -338,6 +338,11 @@ def parse_chapter(soup):
 
     # when chapter text and footnotes are split into several sections
     else:
+        # for index of sujects at the end
+        isindexpage=False
+        if content.center.b.text.strip() == 'INDEX.':
+            isindexpage=True
+
         # exceptions needed for pages 88 (rhode island), 130 (georgia), and
         # 144 (general review II)
         sections = re.split(r'</center>', content.prettify())
@@ -354,6 +359,11 @@ def parse_chapter(soup):
             print("\nsection " + str(sectionidx))
             [text, footnotes, footnotecount] = parse_single_section(
                 sections[sectionidx], text, footnotes, footnotecount)
+
+        # FIXME expand tabs instead
+        if isindexpage:
+            text = re.sub('^(\n| )', '', text)
+            text = text.replace('\n', '<br/>\n').replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
 
     return text, footnotes
 

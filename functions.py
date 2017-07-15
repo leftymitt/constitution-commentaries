@@ -199,9 +199,11 @@ def parse_single_section(section, text, footnotes, footnotecount):
         listcount = len(re.findall('(^\d{1,2} |\n\t *\d{1,2} |<br/>\n +\d{1,2} |(?:\n +){3}\d{1,2})', footer)) # for 309 section 24
         if bodycount != 0 and listcount == 0: # for 338 section 10
             listcount = len(re.findall('(^\d{1,2} |\n\t *\d{1,2} |<br/>\n +\d{1,2} |(?:\n +){2}\d{1,2})', footer))
-        if bodycount == listcount == 0: # not sure what this is for...
-            footer = ""
-            body += re.sub(r'<b>[\s\s]+</b>\n', '', temp[1]).strip()
+
+        #  # commented out below to fix 304 section 23
+        #  if bodycount == listcount == 0: # not sure what this is for...
+        #      footer = ""
+        #      body += re.sub(r'<b>[\s\s]+</b>\n', '', temp[1]).strip()
 
         newfootnotes = [""]
         temp = list(filter(None, [ item.strip() for item in re.split('\n\t|<br/>\n|(?:\n +){3,}', footer) ]))
